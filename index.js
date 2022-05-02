@@ -20,8 +20,17 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     await client.connect();
-    const carsCollection = client.db("warehouseManagement").collection("cars");
-    console.log("mongodb connect");
+    const popularCarsCollection = client
+      .db("warehouseManagement")
+      .collection("popularCars");
+
+    //popular car get api
+    app.get("/popularCars", async (req, res) => {
+      const query = {};
+      const cursor = popularCarsCollection.find(query);
+      const popularCars = await cursor.toArray();
+      res.send(popularCars);
+    });
   } finally {
     //  await client.close();
   }
