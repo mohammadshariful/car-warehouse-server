@@ -31,6 +31,12 @@ async function run() {
       const popularCars = await cursor.toArray();
       res.send(popularCars);
     });
+    //popular car post api
+    app.post("/popularCars", async (req, res) => {
+      const carInfo = req.body;
+      const popularCars = await popularCarsCollection.insertOne(carInfo);
+      res.send(popularCars);
+    });
   } finally {
     //  await client.close();
   }
