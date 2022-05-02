@@ -37,6 +37,21 @@ async function run() {
       const popularCars = await popularCarsCollection.insertOne(carInfo);
       res.send(popularCars);
     });
+    // get add items
+    app.get("/getCars", async (req, res) => {
+      const email = req.query.email;
+      const query = { email };
+      const cursor = popularCarsCollection.find(query);
+      const cars = await cursor.toArray();
+      res.send(cars);
+    });
+    // delete add items
+    app.delete("/getCars/:id", async (req, res) => {
+      const id = req.params;
+      const query = { _id: ObjectId(id) };
+      const result = await popularCarsCollection.deleteOne(query);
+      res.send(result);
+    });
   } finally {
     //  await client.close();
   }
