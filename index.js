@@ -23,6 +23,9 @@ async function run() {
     const popularCarsCollection = client
       .db("warehouseManagement")
       .collection("popularCars");
+    const commentCollection = client
+      .db("warehouseManagement")
+      .collection("comments");
 
     //popular car get api
     app.get("/popularCars", async (req, res) => {
@@ -37,6 +40,14 @@ async function run() {
       const popularCars = await popularCarsCollection.insertOne(carInfo);
       res.send(popularCars);
     });
+    //popular car delete api
+    app.delete("/popularCars/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await popularCarsCollection.deleteOne(query);
+      res.send(result);
+    });
+
     // get add items
     app.get("/getCars", async (req, res) => {
       const email = req.query.email;
@@ -47,9 +58,30 @@ async function run() {
     });
     // delete add items
     app.delete("/getCars/:id", async (req, res) => {
-      const id = req.params;
+      const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await popularCarsCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    //comments api
+    app.get("/comment", async (req, res) => {
+      const query = {};
+      const cursor = commentCollection.find(query);
+      const comment = await cursor.toArray();
+      res.send(comment);
+    });
+
+    app.post("/comment", async (req, res) => {
+      const comment = req.body;
+      const result = await commentCollection.insertOne(comment);
+      res.send(result);
+    });
+
+    app.delete("/comment/:id", async (req, res) => {
+      const id = req.params;
+      const query = { _id: ObjectId(id) };
+      const result = await commentCollection.deleteOne(query);
       res.send(result);
     });
   } finally {
