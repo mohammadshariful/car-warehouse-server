@@ -29,6 +29,9 @@ async function run() {
     const upCommingCars = client
       .db("warehouseManagement")
       .collection("upcommingCars");
+    const carsGallary = client
+      .db("warehouseManagement")
+      .collection("carsGallary");
 
     //popular car get api
     app.get("/popularCars", async (req, res) => {
@@ -119,6 +122,22 @@ async function run() {
       const cursor = upCommingCars.find(query);
       const upcommingCars = await cursor.toArray();
       res.send(upcommingCars);
+    });
+    // car gallary get api
+    //catagory
+    app.get("/carGallaries", async (req, res) => {
+      const query = {};
+      const cursor = carsGallary.find(query);
+      const popularCars = await cursor.toArray();
+      res.send(popularCars);
+    });
+    //catagory
+    app.get("/carGallary", async (req, res) => {
+      const catagory = req.query.catagory;
+      const query = { catagory: catagory };
+      const cursor = carsGallary.find(query);
+      const popularCars = await cursor.toArray();
+      res.send(popularCars);
     });
   } finally {
     //  await client.close();
