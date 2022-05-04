@@ -26,6 +26,9 @@ async function run() {
     const commentCollection = client
       .db("warehouseManagement")
       .collection("comments");
+    const upCommingCars = client
+      .db("warehouseManagement")
+      .collection("upcommingCars");
 
     //popular car get api
     app.get("/popularCars", async (req, res) => {
@@ -109,6 +112,13 @@ async function run() {
       const query = { _id: ObjectId(id) };
       const result = await commentCollection.deleteOne(query);
       res.send(result);
+    });
+    // get upcomming cars api
+    app.get("/upcommingCars", async (req, res) => {
+      const query = {};
+      const cursor = upCommingCars.find(query);
+      const upcommingCars = await cursor.toArray();
+      res.send(upcommingCars);
     });
   } finally {
     //  await client.close();
