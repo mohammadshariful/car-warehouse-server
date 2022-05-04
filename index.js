@@ -40,11 +40,37 @@ async function run() {
       const popularCars = await popularCarsCollection.insertOne(carInfo);
       res.send(popularCars);
     });
+    //popular single get car api
+    app.get("/popularCars/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const car = await popularCarsCollection.findOne(query);
+      res.send(car);
+    });
+
     //popular car delete api
     app.delete("/popularCars/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await popularCarsCollection.deleteOne(query);
+      res.send(result);
+    });
+    //update popularCar quantity api
+    app.put("/popularCars/:id", async (req, res) => {
+      const id = req.params.id;
+      const carQuantity = req.body;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          quantity: carQuantity.newQuantity,
+        },
+      };
+      const result = await popularCarsCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
       res.send(result);
     });
 
