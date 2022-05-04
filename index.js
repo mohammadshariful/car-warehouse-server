@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 5000;
@@ -8,6 +9,22 @@ const port = process.env.PORT || 5000;
 //middleware
 app.use(cors());
 app.use(express.json());
+
+function verifyJWT(req, res, next) {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader) {
+    return res.status(401).send({ message: "unauthorized access" });
+  }
+  const token = authHeader.split(" ")[1];
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRECT, (error, decoded) => {
+    if (error) {
+      return res.status(403).send({ message: "forbidden access" });
+    }
+    req.decoded = decoded;
+    next();
+  });
+}
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.rnivn.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 
@@ -32,6 +49,16 @@ async function run() {
     const carsGallary = client
       .db("warehouseManagement")
       .collection("carsGallary");
+
+    //Auth
+
+    app.post("/login", async (req, res) => {
+      const user = req.body;
+      const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRECT, {
+        expiresIn: "1d",
+      });
+      res.send({ accessToken });
+    });
 
     //popular car get api
     app.get("/popularCars", async (req, res) => {
@@ -81,12 +108,17 @@ async function run() {
     });
 
     // get add items
-    app.get("/getCars", async (req, res) => {
+    app.get("/getCars", verifyJWT, async (req, res) => {
+      const decodedEmail = req.decoded.emailValue;
       const email = req.query.email;
-      const query = { email };
-      const cursor = popularCarsCollection.find(query);
-      const cars = await cursor.toArray();
-      res.send(cars);
+      if (email === decodedEmail) {
+        const query = { email };
+        const cursor = popularCarsCollection.find(query);
+        const cars = await cursor.toArray();
+        res.send(cars);
+      } else {
+        res.status(403).send({ message: "forbidden access" });
+      }
     });
     // delete add items
     app.delete("/getCars/:id", async (req, res) => {
