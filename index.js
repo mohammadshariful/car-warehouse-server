@@ -49,6 +49,9 @@ async function run() {
     const carsGallary = client
       .db("warehouseManagement")
       .collection("carsGallary");
+    const reviewsCollection = client
+      .db("warehouseManagement")
+      .collection("reviews");
 
     //Auth
 
@@ -170,6 +173,20 @@ async function run() {
       const cursor = carsGallary.find(query);
       const popularCars = await cursor.toArray();
       res.send(popularCars);
+    });
+    // reviews api
+    //get reviews api
+    app.get("/reviews", async (req, res) => {
+      const query = {};
+      const cursor = reviewsCollection.find(query);
+      const reviews = await cursor.toArray();
+      res.send(reviews);
+    });
+    // review post api
+    app.post("/reviews", async (req, res) => {
+      const reviews = req.body;
+      const result = await reviewsCollection.insertOne(reviews);
+      res.send(result);
     });
   } finally {
     //  await client.close();
