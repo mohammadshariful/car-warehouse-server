@@ -63,11 +63,28 @@ async function run() {
       res.send({ accessToken });
     });
 
+    //popular car count number
+    app.get("/popularCarsCount", async (req, res) => {
+      const count = await popularCarsCollection.estimatedDocumentCount();
+      res.send({ count });
+    });
+
     //popular car get api
     app.get("/popularCars", async (req, res) => {
+      const page = parseInt(req.query.page);
+      const pageSize = parseInt(req.query.pageSize);
       const query = {};
       const cursor = popularCarsCollection.find(query);
-      const popularCars = await cursor.toArray();
+      let popularCars;
+      if (page || pageSize) {
+        popularCars = await cursor
+          .skip(page * pageSize)
+          .limit(pageSize)
+          .toArray();
+      } else {
+        popularCars = await cursor.toArray();
+      }
+
       res.send(popularCars);
     });
     //popular car post api
@@ -196,7 +213,7 @@ async function run() {
 }
 run().catch(console.dir);
 
-//roote api
+//root api
 app.get("/", (req, res) => {
   res.send("welcome to car rev website");
 });
