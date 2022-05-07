@@ -94,12 +94,13 @@ async function run() {
     //update popularCar quantity api
     app.put("/popularCars/:id", async (req, res) => {
       const id = req.params.id;
-      const carQuantity = req.body;
+      const carInfo = req.body;
       const filter = { _id: ObjectId(id) };
       const options = { upsert: true };
       const updateDoc = {
         $set: {
-          quantity: carQuantity.newQuantity,
+          quantity: carInfo.newQuantity,
+          sold: carInfo.newSold,
         },
       };
       const result = await popularCarsCollection.updateOne(
@@ -151,6 +152,7 @@ async function run() {
       const result = await commentCollection.deleteOne(query);
       res.send(result);
     });
+
     // get upcomming cars api
     app.get("/upcommingCars", async (req, res) => {
       const query = {};
